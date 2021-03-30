@@ -13,8 +13,8 @@ spring:
       enabled: true
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://118.190.172.75:3306/blog?characterEncoding=utf8&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://118.190.172.75:3306/family?characterEncoding=utf8&useSSL=false
     username: root
     password: 101664iloveyou
     filters: stat
@@ -30,3 +30,8 @@ spring:
     testOnReturn: false
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
+# 分页框架
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true

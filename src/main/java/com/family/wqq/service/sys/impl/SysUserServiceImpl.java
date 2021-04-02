@@ -15,6 +15,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,18 +58,58 @@ public class SysUserServiceImpl implements SysUserService {
     }
 
     @Override
-    public PageResult<UserPageVO> getUserPage(Integer pageNum, Integer pageSize) {
+    public PageResult<UserPageVO> getUserPage(Integer pageNum, Integer pageSize,String account,String sortField,String sortOrder,Short status) {
 
         Example e = new Example(SysUser.class);
-        e.createCriteria().andEqualTo("delFlag", false);
+        Example.Criteria criteria = e.createCriteria();
+        if(StringUtils.isNotBlank(sortField)){
+            if("ascend".equals(sortOrder)){
+                e.setOrderByClause("create_time asc");
+            }else {
+                e.setOrderByClause("create_time desc");
+            }
+        }else {
+            e.setOrderByClause("create_time desc");
+        }
+        criteria.andEqualTo("delFlag", false);
+        if(StringUtils.isNotBlank(account)){
+            criteria.andLike("account","%"+account+"%");
+        }
+        if(status!=null){
+            criteria.andEqualTo("status",status);
+        }
         PageHelper.startPage(pageNum, pageSize);
-       Page<SysUser> data = (Page<SysUser>) this.userMapper.selectAll();
+       Page<SysUser> data = (Page<SysUser>) this.userMapper.selectByExample(e);
         List<UserPageVO> list = ObjectTypeTransUtil.entityListToModelList(data.getResult(), UserPageVO.class);
         PageResult<UserPageVO> result = new PageResult<>();
         result.setTotalPage(data.getPages());
         result.setTotal(data.getTotal());
+        result.setPageSize(pageSize);
+        result.setCurrentPage(pageNum);
         result.setItems(list);
         return result;
+    }
+
+    @Override
+    public int updateUser(AddOrUpdateUserDTO dto) {
+        SysUser sysUser = this.userMapper.selectByPrimaryKey(dto.getId());
+        if(sysUser==null || sysUser.getDelFlag()){
+            throw new RRException("当前用户不存在",ResultCode.FAIL.code());
+        }
+        SysUser userData = ObjectTypeTransUtil.entityToModel(dto, SysUser.class);
+        String dbPassword = Md5Utils.sha256(dto.getPassword(), sysUser.getSalt());
+        userData.setPassword(dbPassword);
+        return this.userMapper.updateByPrimaryKeySelective(userData);
+    }
+
+    @Override
+    public int batchDelUser(List<Long> ids) {
+        for(Long id:ids){
+            SysUser sysUser = this.userMapper.selectByPrimaryKey(id);
+            sysUser.setDelFlag(true);
+            this.userMapper.updateByPrimaryKeySelective(sysUser);
+        }
+        return 1;
     }
 
 }

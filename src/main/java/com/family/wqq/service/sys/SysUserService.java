@@ -4,6 +4,8 @@ import com.family.wqq.common.rsp.PageResult;
 import com.family.wqq.dto.sys.AddOrUpdateUserDTO;
 import com.family.wqq.vo.sys.UserPageVO;
 
+import java.util.List;
+
 /**
  * @ClassName SysUserService
  * @Description TODO
@@ -14,6 +16,9 @@ import com.family.wqq.vo.sys.UserPageVO;
 public interface SysUserService {
     int addUser(AddOrUpdateUserDTO dto);
 
-    PageResult<UserPageVO> getUserPage(Integer pageNum, Integer pageSize);
+    PageResult<UserPageVO> getUserPage(Integer pageNum, Integer pageSize,String account,String sortField,String sortOrder,Short status);
 
+    int updateUser(AddOrUpdateUserDTO dto);
+
+    int batchDelUser(List<Long> ids);
 }

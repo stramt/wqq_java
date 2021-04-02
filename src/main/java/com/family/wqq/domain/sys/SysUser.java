@@ -28,10 +28,13 @@ public class SysUser {
     private String password;
     private String salt;
     private String phone;
-    private String headImage;
+    private String avatar;
     private Boolean delFlag;
     @ApiModelProperty("用户状态,0正常 1 已禁用")
     private Short status;
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date lastLoginTime;
+    private String lastLoginIp;
 }
